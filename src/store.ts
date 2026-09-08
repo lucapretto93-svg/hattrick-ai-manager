@@ -1,0 +1,2 @@
+import {collection,doc,setDoc,writeBatch} from 'firebase/firestore';import {db} from './firebase';import type {HoSnapshot} from './importer';
+export async function saveSnapshot(uid:string,s:HoSnapshot){const id=new Date().toISOString().replace(/[:.]/g,'-');await setDoc(doc(db,'users',uid,'snapshots',id),{source:s.source,importedAt:s.importedAt,team:s.team||null,playerCount:s.players.length});const batch=writeBatch(db);for(const p of s.players)batch.set(doc(collection(db,'users',uid,'players'),p.id),{...p,updatedAt:s.importedAt},{merge:true});await batch.commit();return id;}
