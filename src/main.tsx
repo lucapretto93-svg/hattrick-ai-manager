@@ -1,0 +1,14 @@
+import React,{useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import {signInWithPopup} from 'firebase/auth';
+import {auth,googleProvider} from './firebase';
+import './style.css';
+
+type Section='Oggi'|'Rosa'|'Allenamento'|'Partite'|'Avversari'|'Mercato'|'Finanze'|'Import HO!';
+const sections:Section[]=['Oggi','Rosa','Allenamento','Partite','Avversari','Mercato','Finanze','Import HO!'];
+function App(){const [section,setSection]=useState<Section>('Oggi'); const [file,setFile]=useState('');
+return <div className="app"><aside><div className="brand"><b>HT</b><span>AI Manager<small>Hattrick control room</small></span></div>{sections.map(s=><button className={section===s?'active':''} onClick={()=>setSection(s)}>{s}</button>)}<button className="login" onClick={()=>signInWithPopup(auth,googleProvider)}>Accedi con Google</button></aside><main><header><div><small>CONTROL ROOM</small><h1>{section}</h1></div><span className="live">● FIREBASE LIVE</span></header>{section==='Oggi'?<Dashboard/>:section==='Import HO!'?<Import file={file} setFile={setFile}/>:<Empty title={section}/>}</main></div>}
+function Dashboard(){return <><div className="hero"><div><small>PIANO DI OGGI</small><h2>Il tuo assistente tecnico è pronto.</h2><p>Importa i dati di HO! per generare allenamento, formazione, tattica, cambi e priorità mercato.</p></div><button>Genera piano</button></div><div className="grid"><Card t="Prossima partita" v="In attesa dati HO!" d="Analisi avversario e formazione ottimale"/><Card t="Allenamento" v="Da sincronizzare" d="Allenandi, slot e previsione scatti"/><Card t="Mercato" v="Scout AI" d="Fabbisogni rosa e prezzo massimo"/><Card t="Rosa" v="— giocatori" d="Forma, resistenza, skill e sviluppo"/></div><section className="panel"><small>DECISION ENGINE</small><h3>Una sola schermata per decidere cosa fare.</h3><p>Dopo ogni import conserveremo snapshot e storico: l'AI potrà ragionare sull'evoluzione della squadra, non soltanto sull'ultima formazione.</p></section></>}
+function Import({file,setFile}:{file:string,setFile:(x:string)=>void}){return <div className="panel"><small>HO! BRIDGE</small><h2>Importa la tua squadra</h2><p>Carica un export JSON, XML, HRF o CSV di Hattrick Organizer. L'importer normalizzerà i dati prima di salvarli in Firestore.</p><label className="drop"><input type="file" accept=".json,.xml,.hrf,.csv" onChange={e=>setFile(e.target.files?.[0]?.name||'')}/><b>{file||'Scegli file HO!'}</b><span>JSON · XML · HRF · CSV</span></label></div>}
+function Card({t,v,d}:{t:string,v:string,d:string}){return <div className="card"><small>{t}</small><h3>{v}</h3><p>{d}</p></div>}; function Empty({title}:{title:string}){return <div className="panel"><small>MODULO</small><h2>{title}</h2><p>Modulo predisposto. Verrà popolato dai dati della squadra importati da HO!.</p></div>}
+createRoot(document.getElementById('root')!).render(<App/>);
